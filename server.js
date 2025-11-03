@@ -13,7 +13,6 @@ io.on('connection', (socket) => {
   console.log('A user connected');
 
   socket.on('chat message', (msg) => io.emit('chat message', msg));
-
   socket.on('typing', (username) => socket.broadcast.emit('typing', username));
   socket.on('stop typing', () => socket.broadcast.emit('stop typing'));
 
@@ -21,4 +20,4 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+http.listen(PORT, () => console.log(\`Server running on port \${PORT}\`));
