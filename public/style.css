@@ -1,115 +1,134 @@
-/* GENERAL STYLING */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Nunito', sans-serif;
-}
+/* style.css */
+
+/* Import Nunito font */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
 
 body {
-  background-color: #f7f3f0;
-  color: #333;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: 'Nunito', sans-serif;
+    background-color: #ffffff;
+    color: #004cff;
 }
 
-/* CONTAINER */
-.app-container {
-  width: 100%;
-  max-width: 600px;
-  background-color: #fffaf4;
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* General container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-/* HEADER */
-.header {
-  background-color: #ffd6b8;
-  padding: 20px;
-  text-align: center;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #663300;
+/* Header / Navbar */
+header {
+    background-color: #004cff;
+    color: #ffffff;
+    padding: 15px 30px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* CHAT AREA */
-.main-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
+header h1 {
+    margin: 0;
+    font-size: 28px;
 }
 
-.chat-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+/* Buttons */
+button {
+    background-color: #004cff;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.messages {
-  flex: 1;
-  background-color: #fff1e6;
-  padding: 15px;
-  border-radius: 15px;
-  overflow-y: auto;
-  max-height: 400px;
+button:hover {
+    background-color: #0033cc;
+    transform: translateY(-2px);
 }
 
-.messages p {
-  margin-bottom: 10px;
+/* Inputs and textareas */
+input, textarea {
+    padding: 10px 15px;
+    border-radius: 12px;
+    border: 1px solid #004cff;
+    outline: none;
+    font-family: 'Nunito', sans-serif;
+    margin-bottom: 10px;
 }
 
-.system-message {
-  color: #a67c52;
-  font-style: italic;
+input:focus, textarea:focus {
+    border-color: #0033cc;
+    box-shadow: 0 0 5px rgba(0, 76, 255, 0.3);
 }
 
-/* INPUT AREA */
-.input-container {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
+/* Chat / Messages */
+.chat-box {
+    background-color: #f0f4ff;
+    border-radius: 15px;
+    padding: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+    margin-bottom: 20px;
 }
 
-.input-container input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 15px;
-  border: 1px solid #ffd6b8;
-  outline: none;
-  font-size: 1rem;
+.message {
+    background-color: #004cff;
+    color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    display: inline-block;
+    max-width: 80%;
+    word-wrap: break-word;
 }
 
-.input-container input:focus {
-  border-color: #ff9966;
+/* Links */
+a {
+    color: #004cff;
+    text-decoration: none;
+    font-weight: 600;
 }
 
-.input-container button {
-  padding: 12px 20px;
-  border-radius: 15px;
-  border: none;
-  background-color: #ff9966;
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
+a:hover {
+    text-decoration: underline;
 }
 
-.input-container button:hover {
-  background-color: #ff7f50;
+/* Cards / Containers */
+.card {
+    background-color: #ffffff;
+    border: 1px solid #004cff;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-/* FOOTER */
-.footer {
-  text-align: center;
-  padding: 10px;
-  background-color: #ffe6d6;
-  font-size: 0.85rem;
-  color: #663300;
-  border-top: 1px solid #ffd6b8;
+/* Footer */
+footer {
+    text-align: center;
+    padding: 15px;
+    margin-top: 30px;
+    color: #004cff;
+    font-weight: 600;
+}
+
+/* Scrollbar for chat */
+.chat-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-box::-webkit-scrollbar-track {
+    background: #ffffff;
+    border-radius: 8px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+    background: #004cff;
+    border-radius: 8px;
 }
