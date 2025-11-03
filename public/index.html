@@ -1,121 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DevHub</title>
-<style>
-body { font-family: sans-serif; margin:0; padding:0; background:#f5f5f5; transition: background 0.3s; }
-.dark { background:#1e1e1e; color:white; }
-#chat { height: 60vh; overflow-y: auto; border:1px solid #ccc; padding:10px; }
-#users { border:1px solid #ccc; padding:10px; }
-#servers { margin-bottom:10px; }
-.typing { font-style: italic; color: gray; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevHub</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h2>DevHub</h2>
-<button id="toggleTheme">Toggle Dark/Light</button>
-<div id="login">
-  <input placeholder="Enter username" id="usernameInput">
-  <button id="loginBtn">Login</button>
-</div>
-<div id="main" style="display:none;">
-  <div id="servers"></div>
-  <div id="users"></div>
-  <div id="chat"></div>
-  <input id="msgInput" placeholder="Type a message...">
-</div>
-<script src="/socket.io/socket.io.js"></script>
-<script>
-const socket = io();
-let currentServer = null;
-let username = null;
+  <div class="app-container">
+    <header class="header">
+      <h1>DevHub</h1>
+    </header>
 
-// Dark/Light toggle
-const body = document.body;
-document.getElementById('toggleTheme').onclick = () => {
-  body.classList.toggle('dark');
-}
+    <main class="main-content">
+      <section class="chat-section">
+        <div class="messages" id="messages">
+          <p class="system-message">Welcome to DevHub! Cozy vibes only ✨</p>
+        </div>
 
-// Login
-document.getElementById('loginBtn').onclick = async () => {
-  username = document.getElementById('usernameInput').value.trim();
-  if (!username) return;
-  await fetch('/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username}) });
-  document.getElementById('login').style.display = 'none';
-  document.getElementById('main').style.display = 'block';
-  loadServers();
-}
+        <div class="input-container">
+          <input type="text" id="chatInput" placeholder="Type your message..." />
+          <button id="sendBtn">Send</button>
+        </div>
+      </section>
+    </main>
 
-// Load servers
-async function loadServers() {
-  const res = await fetch('/servers');
-  const servers = await res.json();
-  const serversDiv = document.getElementById('servers');
-  serversDiv.innerHTML = '';
-  servers.forEach(s => {
-    const btn = document.createElement('button');
-    btn.textContent = s.name;
-    btn.onclick = () => joinServer(s.id, s.name);
-    serversDiv.appendChild(btn);
-  });
-  const addBtn = document.createElement('button');
-  addBtn.textContent = 'Add Server';
-  addBtn.onclick = async () => {
-    const name = prompt('Server name?');
-    if (!name) return;
-    await fetch('/servers', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name}) });
-    loadServers();
-  }
-  serversDiv.appendChild(addBtn);
-}
+    <footer class="footer">
+      <p>© 2025 DevHub • Cozy coding space</p>
+    </footer>
+  </div>
 
-// Join server
-async function joinServer(id, name) {
-  currentServer = id;
-  document.getElementById('chat').innerHTML = '';
-  const msgs = await fetch(`/messages/${id}`).then(r => r.json());
-  msgs.forEach(m => addMessage(m.username, m.content, m.timestamp));
-  socket.emit('joinServer', { serverId:id, username });
-}
-
-// Send message
-document.getElementById('msgInput').addEventListener('keydown', e => {
-  if (e.key==='Enter') {
-    const content = e.target.value.trim();
-    if (!content) return;
-    socket.emit('sendMessage', { serverId:currentServer, username, content });
-    e.target.value = '';
-  } else {
-    socket.emit('typing');
-  }
-});
-
-function addMessage(user, content, timestamp) {
-  const chat = document.getElementById('chat');
-  const div = document.createElement('div');
-  div.innerHTML = `<strong>${user}</strong> [${timestamp}]: ${content}`;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-// Socket listeners
-socket.on('newMessage', m => addMessage(m.username, m.content, m.timestamp));
-socket.on('updateUsers', users => {
-  document.getElementById('users').innerHTML = 'Online: ' + users.join(', ');
-});
-socket.on('typing', user => {
-  const chat = document.getElementById('chat');
-  let typingDiv = document.getElementById('typingDiv');
-  if (!typingDiv) {
-    typingDiv = document.createElement('div');
-    typingDiv.id = 'typingDiv';
-    chat.appendChild(typingDiv);
-  }
-  typingDiv.textContent = `${user} is typing...`;
-  setTimeout(()=>{ if(typingDiv.textContent===`${user} is typing...`) typingDiv.textContent=''; }, 2000);
-});
-</script>
+  <script src="client.js"></script>
 </body>
 </html>

@@ -1,56 +1,115 @@
-/* Apply Nunito font globally */
+/* GENERAL STYLING */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Nunito', sans-serif;
+}
+
 body {
-    font-family: 'Nunito', sans-serif;
-    background-color: #f7f7f7; /* light cozy background */
-    color: #333; /* soft text color */
-    margin: 0;
-    padding: 0;
+  background-color: #f7f3f0;
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-/* Rounded buttons */
-button {
-    font-family: 'Nunito', sans-serif;
-    border-radius: 12px; /* soft rounded corners */
-    border: none;
-    padding: 10px 20px;
-    background-color: #5c6bc0; /* friendly primary color */
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+/* CONTAINER */
+.app-container {
+  width: 100%;
+  max-width: 600px;
+  background-color: #fffaf4;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-button:hover {
-    background-color: #7986cb;
+/* HEADER */
+.header {
+  background-color: #ffd6b8;
+  padding: 20px;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #663300;
 }
 
-/* Rounded input fields */
-input, textarea {
-    border-radius: 12px;
-    border: 1px solid #ccc;
-    padding: 10px;
-    font-family: 'Nunito', sans-serif;
-    outline: none;
-    transition: border-color 0.2s ease;
+/* CHAT AREA */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
-input:focus, textarea:focus {
-    border-color: #5c6bc0;
+.chat-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-/* Cards / Containers */
-.card {
-    border-radius: 16px;
-    background-color: white;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
+.messages {
+  flex: 1;
+  background-color: #fff1e6;
+  padding: 15px;
+  border-radius: 15px;
+  overflow-y: auto;
+  max-height: 400px;
 }
 
-/* Make chat bubbles rounded */
-.chat-bubble {
-    border-radius: 20px;
-    padding: 10px 15px;
-    background-color: #e0e0e0;
-    margin: 5px 0;
-    max-width: 80%;
+.messages p {
+  margin-bottom: 10px;
+}
+
+.system-message {
+  color: #a67c52;
+  font-style: italic;
+}
+
+/* INPUT AREA */
+.input-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.input-container input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 15px;
+  border: 1px solid #ffd6b8;
+  outline: none;
+  font-size: 1rem;
+}
+
+.input-container input:focus {
+  border-color: #ff9966;
+}
+
+.input-container button {
+  padding: 12px 20px;
+  border-radius: 15px;
+  border: none;
+  background-color: #ff9966;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.input-container button:hover {
+  background-color: #ff7f50;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 10px;
+  background-color: #ffe6d6;
+  font-size: 0.85rem;
+  color: #663300;
+  border-top: 1px solid #ffd6b8;
 }
