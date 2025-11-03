@@ -1,22 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DevHub</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div id="chat-container">
-      <div id="header">💬 DevHub</div>
-      <ul id="messages"></ul>
-      <div id="typing"></div>
-      <form id="form" action="">
-        <input id="input" autocomplete="off" placeholder="Type a message..." />
-        <button>Send</button>
-      </form>
-    </div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<title>DevHub</title>
+<style>
+  body { font-family: Arial; padding: 20px; }
+  #servers button { display: block; margin: 5px 0; }
+  #chat { border: 1px solid #ccc; padding: 10px; width: 300px; height: 400px; overflow-y: auto; margin-top: 10px; }
+  #message { width: 200px; }
+</style>
+</head>
+<body>
+
+<h2>DevHub</h2>
+
+<div>
+  <input id="username" placeholder="Enter username">
+  <input id="serverName" placeholder="Enter server name">
+  <button id="joinServer">Join Server</button>
+</div>
+
+<h3>Servers:</h3>
+<div id="servers"></div>
+
+<h3>Chat:</h3>
+<div id="chat"></div>
+<input id="message" placeholder="Type message">
+<button id="sendMessage">Send</button>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+let currentServer = '';
+let username = '';
+
+document.getElementById('joinServer').addEventListener('click', () => {
+  username = document.getElementById('username').value;
+  const serverName = document.getElementById('serverName').value;
+  if (!username || !serverName) return alert('Enter both username and server name!');
+  
+  currentServer = serverName;
+  socket.emit('join-server', { serverName, username });
+  document.getElementById('chat').innerHTML = ''; // clear chat on join
+});
+
+socket.on('server-message', (msg) => {
+  const chat = document.getElementById('chat');
+  chat.innerHTML += `<div><i>${msg}</i></div>`;
+  chat.scrollTop = chat.scrollHeight;
+});
+
+document.getElementById('sendMessage').addEventListener('click', () => {
+  const message = document.getElementById('message').value;
+  if (!message || !currentServer) return;
+  
+  socket.emit('chat-message', { serverName: currentServer, username, message });
+  document.getElementById('message').value = '';
+});
+
+socket.on('chat-message', ({ username: user, message }) => {
+  const chat = document.getElementById('chat');
+  chat.innerHTML += `<div><b>${user}:</b> ${message}</div>`;
+  chat.scrollTop = chat.scrollHeight;
+});
+
+socket.on('update-servers', (servers) => {
+  const serversDiv = document.getElementById('servers');
+  serversDiv.innerHTML = '';
+  for (const server in servers) {
+    const btn = document.createElement('button');
+    btn.textContent = `${server} (${servers[server].length} users)`;
+    btn.onclick = () => {
+      currentServer = server;
+      document.getElementById('chat').innerHTML = '';
+    };
+    serversDiv.appendChild(btn);
+  }
+});
+</script>
+</body>
 </html>
