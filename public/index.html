@@ -1,35 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DevHub</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-  <div class="app-container">
-    <header class="header">
-      <h1>DevHub</h1>
-    </header>
+  <div class="app">
+    <aside class="sidebar">
+      <h2>Servers</h2>
+      <ul>
+        <li class="active"># General</li>
+        <li># Projects</li>
+        <li># Support</li>
+      </ul>
+      <button id="toggleDark">🌙</button>
+    </aside>
 
-    <main class="main-content">
-      <section class="chat-section">
-        <div class="messages" id="messages">
-          <p class="system-message">Welcome to DevHub! Cozy vibes only ✨</p>
-        </div>
-
-        <div class="input-container">
-          <input type="text" id="chatInput" placeholder="Type your message..." />
-          <button id="sendBtn">Send</button>
-        </div>
-      </section>
+    <main class="chat">
+      <div id="messages"></div>
+      <form id="chatForm">
+        <input id="msgInput" type="text" placeholder="Type a message..." autocomplete="off" />
+        <button type="submit">Send</button>
+      </form>
     </main>
-
-    <footer class="footer">
-      <p>© 2025 DevHub • Cozy coding space</p>
-    </footer>
   </div>
 
-  <script src="client.js"></script>
+  <script>
+    const socket = io();
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("msgInput");
+    const messages = document.getElementById("messages");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const msg = input.value.trim();
+      if (!msg) return;
+      socket.emit("chatMessage", msg);
+      input.value = "";
+    });
+
+    socket.on("chatMessage", (msg) => {
+      const div = document.createElement("div");
+      div.classList.add("message");
+      div.textContent = msg;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    });
+
+    // Dark mode toggle
+    const toggleDark = document.getElementById("toggleDark");
+    toggleDark.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+    });
+  </script>
 </body>
 </html>
