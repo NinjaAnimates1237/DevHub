@@ -9,14 +9,16 @@
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
-  <div class="app">
+  <div class="join-screen" id="joinScreen">
+    <h1>Join DevHub</h1>
+    <input id="username" placeholder="Enter username" />
+    <input id="serverCode" placeholder="Enter server code (e.g., dev123)" />
+    <button id="joinBtn">Join</button>
+  </div>
+
+  <div class="app hidden" id="chatApp">
     <aside class="sidebar">
-      <h2>Servers</h2>
-      <ul>
-        <li class="active"># General</li>
-        <li># Projects</li>
-        <li># Support</li>
-      </ul>
+      <h2>Server: <span id="currentServer">-</span></h2>
       <button id="toggleDark">🌙</button>
     </aside>
 
@@ -31,9 +33,26 @@
 
   <script>
     const socket = io();
+    const joinScreen = document.getElementById("joinScreen");
+    const chatApp = document.getElementById("chatApp");
+    const usernameInput = document.getElementById("username");
+    const serverInput = document.getElementById("serverCode");
+    const joinBtn = document.getElementById("joinBtn");
+    const currentServer = document.getElementById("currentServer");
+
     const form = document.getElementById("chatForm");
     const input = document.getElementById("msgInput");
     const messages = document.getElementById("messages");
+
+    joinBtn.onclick = () => {
+      const username = usernameInput.value.trim();
+      const code = serverInput.value.trim();
+      if (!username || !code) return alert("Enter username and server code!");
+      socket.emit("joinServer", { username, code });
+      currentServer.textContent = code;
+      joinScreen.classList.add("hidden");
+      chatApp.classList.remove("hidden");
+    };
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
@@ -43,15 +62,20 @@
       input.value = "";
     });
 
-    socket.on("chatMessage", (msg) => {
+    socket.on("chatMessage", (data) => {
       const div = document.createElement("div");
       div.classList.add("message");
-      div.textContent = msg;
+      if (data.system) {
+        div.classList.add("system");
+        div.textContent = data.text;
+      } else {
+        div.innerHTML = `<b>${data.username}:</b> ${data.text}`;
+      }
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
     });
 
-    // Dark mode toggle
+    // Dark mode
     const toggleDark = document.getElementById("toggleDark");
     toggleDark.addEventListener("click", () => {
       document.body.classList.toggle("dark");
