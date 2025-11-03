@@ -1,32 +1,24 @@
- // server.js
-const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-
+const express = require('express');
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 
-app.use(express.static("public"));
+app.use(express.static('public'));
 
-io.on("connection", (socket) => {
-  console.log("A user connected");
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/public/index.html');
+});
 
-  socket.on("setName", (name) => {
-    socket.username = name;
-    io.emit("chat message", { user: "System", text: `${name} joined DevHub!` });
-  });
+io.on('connection', (socket) => {
+  console.log('A user connected');
 
-  socket.on("chat message", (msg) => {
-    io.emit("chat message", { user: socket.username, text: msg });
-  });
+  socket.on('chat message', (msg) => io.emit('chat message', msg));
 
-  socket.on("disconnect", () => {
-    if (socket.username) {
-      io.emit("chat message", { user: "System", text: `${socket.username} left DevHub.` });
-    }
-  });
+  socket.on('typing', (username) => socket.broadcast.emit('typing', username));
+  socket.on('stop typing', () => socket.broadcast.emit('stop typing'));
+
+  socket.on('disconnect', () => console.log('A user disconnected'));
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`🌐 DevHub running on http://localhost:${PORT}`));
+http.listen(PORT, () => console.log(`Server running on port ${PORT}`));
