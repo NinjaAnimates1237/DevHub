@@ -1,70 +1,56 @@
+/* Apply Nunito font globally */
 body {
-  margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background-color: #0d1117;
-  color: #c9d1d9;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    font-family: 'Nunito', sans-serif;
+    background-color: #f7f7f7; /* light cozy background */
+    color: #333; /* soft text color */
+    margin: 0;
+    padding: 0;
 }
-#chat-container {
-  background-color: #161b22;
-  border-radius: 12px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-  width: 400px;
-  max-width: 90%;
-  display: flex;
-  flex-direction: column;
-}
-#header {
-  background: linear-gradient(90deg, #3a0ca3, #4361ee);
-  color: white;
-  padding: 12px;
-  text-align: center;
-  border-radius: 12px 12px 0 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-#messages {
-  flex: 1;
-  padding: 10px;
-  overflow-y: auto;
-  list-style: none;
-  margin: 0;
-}
-#messages li {
-  margin-bottom: 10px;
-  padding: 8px 10px;
-  background-color: #21262d;
-  border-radius: 8px;
-  word-wrap: break-word;
-}
-form {
-  display: flex;
-  border-top: 1px solid #30363d;
-}
-input {
-  border: none;
-  padding: 12px;
-  flex: 1;
-  font-size: 14px;
-  background-color: #0d1117;
-  color: #c9d1d9;
-}
+
+/* Rounded buttons */
 button {
-  background: #238636;
-  border: none;
-  color: white;
-  padding: 0 20px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: 0 0 12px 0;
+    font-family: 'Nunito', sans-serif;
+    border-radius: 12px; /* soft rounded corners */
+    border: none;
+    padding: 10px 20px;
+    background-color: #5c6bc0; /* friendly primary color */
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
-button:hover { background: #2ea043; }
-#typing {
-  font-size: 12px;
-  color: #8b949e;
-  margin-left: 12px;
-  margin-bottom: 5px;
+
+button:hover {
+    background-color: #7986cb;
+}
+
+/* Rounded input fields */
+input, textarea {
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-family: 'Nunito', sans-serif;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+input:focus, textarea:focus {
+    border-color: #5c6bc0;
+}
+
+/* Cards / Containers */
+.card {
+    border-radius: 16px;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* Make chat bubbles rounded */
+.chat-bubble {
+    border-radius: 20px;
+    padding: 10px 15px;
+    background-color: #e0e0e0;
+    margin: 5px 0;
+    max-width: 80%;
 }
