@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DevHub 2.1</title>
+  <title>DevHub 2.2</title>
   <script src="/socket.io/socket.io.js"></script>
   <style>
     body {
@@ -15,7 +15,7 @@
       margin: 0;
     }
     #sidebar {
-      width: 220px;
+      width: 230px;
       background: #004cff;
       padding: 15px;
       display: flex;
@@ -77,6 +77,7 @@
     <button id="createServer">+ Create</button>
     <div id="users"><strong>Online:</strong><br></div>
   </div>
+
   <div id="main">
     <div id="messages"></div>
     <div id="typing"></div>
@@ -100,16 +101,15 @@
 
     socket.emit("joinServer", { serverId, user: username });
 
-    // Send message
     sendBtn.onclick = () => {
-      if (msgInput.value.trim()) {
-        socket.emit("chatMessage", msgInput.value);
+      const msg = msgInput.value.trim();
+      if (msg) {
+        socket.emit("chatMessage", msg);
         msgInput.value = "";
         socket.emit("typing", false);
       }
     };
 
-    // Display messages
     socket.on("message", (msg) => {
       const div = document.createElement("div");
       div.innerHTML = `<strong>${msg.user}</strong>: ${msg.text} <span style="font-size:10px;color:#999;">${msg.timestamp}</span>`;
@@ -117,40 +117,39 @@
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 
-    // Update online users
     socket.on("updateUsers", (users) => {
       usersDiv.innerHTML = "<strong>Online:</strong><br>" + users.join("<br>");
     });
 
-    // Chat history
     socket.on("chatHistory", (history) => {
-      history.forEach(msg => {
+      messagesDiv.innerHTML = "";
+      history.forEach((msg) => {
         const div = document.createElement("div");
         div.innerHTML = `<strong>${msg.user}</strong>: ${msg.text}`;
         messagesDiv.appendChild(div);
       });
     });
 
-    // Typing indicator
     msgInput.addEventListener("input", () => {
       socket.emit("typing", msgInput.value.length > 0);
     });
+
     socket.on("userTyping", ({ user, isTyping }) => {
       typingDiv.textContent = isTyping ? `${user} is typing...` : "";
     });
 
-    // Create new server
     createServerBtn.onclick = async () => {
-      const name = prompt("Server name:");
+      const name = prompt("Enter server name:");
+      if (!name) return;
       const res = await fetch("/create-server", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
+        body: JSON.stringify({ name }),
       });
       const data = await res.json();
       alert(`Server created! ID: ${data.id}`);
-      socket.emit("joinServer", { serverId: data.id, user: username });
-      messagesDiv.innerHTML = "";
+      serverId = data.id;
+      socket.emit("joinServer", { serverId, user: username });
     };
   </script>
 </body>
