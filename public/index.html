@@ -173,12 +173,21 @@
       });
 
       // On successful join
-      socket.on("message", (data) => {
-        const msg = document.createElement("div");
-        msg.classList.add("message");
-        msg.innerHTML = `<span class="username">${data.user}:</span> ${data.msg}`;
-        messagesDiv.appendChild(msg);
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+socket.on("serverJoined", (data) => {
+    currentServer = data.serverId; // <--- THIS IS THE FIX
+    chatDiv.style.display = "block";
+    serverCodeDisplay.innerHTML = `✅ Joined server: <strong>${currentServer}</strong>`;
+});
+
+// Receiving messages
+socket.on("message", (data) => {
+    const msg = document.createElement("div");
+    msg.classList.add("message");
+    msg.innerHTML = `<span class="username">${data.user}:</span> ${data.msg}`;
+    messagesDiv.appendChild(msg);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+});
+
 
         // Show chat if hidden
         chatDiv.style.display = "block";
