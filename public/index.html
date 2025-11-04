@@ -1,228 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DevHub</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        font-family: 'Nunito', sans-serif;
-        background-color: #0d0d16;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-start;
-        height: 100vh;
-        margin: 0;
-        padding: 0;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevHub</title>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: "Nunito", sans-serif;
+      background: #0a0a0a;
+      color: white;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #app {
+      width: 420px;
+      background: #111;
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+    input, button {
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 5px 0;
+      width: 100%;
+      font-size: 16px;
+    }
+    input { background: #222; color: white; }
+    button {
+      background: #004cff;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    #messages {
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 10px;
+      height: 250px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+    }
+    .message { margin-bottom: 8px; }
+    .username { color: #004cff; font-weight: 600; }
+    #serverCodeDisplay { color: #004cff; margin-bottom: 10px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h2>💬 DevHub</h2>
 
-      .container {
-        width: 90%;
-        max-width: 600px;
-        background: #1a1a2f;
-        border-radius: 20px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
-        padding: 20px;
-        margin-top: 20px;
-      }
-
-      h1 {
-        color: #004cff;
-        text-align: center;
-      }
-
-      #chat {
-        display: none;
-        margin-top: 20px;
-      }
-
-      #messages {
-        background: #111122;
-        border-radius: 10px;
-        padding: 10px;
-        height: 300px;
-        overflow-y: auto;
-        margin-bottom: 10px;
-      }
-
-      input, button {
-        border: none;
-        border-radius: 8px;
-        padding: 10px;
-        font-size: 16px;
-        outline: none;
-      }
-
-      input {
-        width: calc(100% - 90px);
-      }
-
-      button {
-        background: #004cff;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-
-      button:hover {
-        background: #0033aa;
-      }
-
-      #userList {
-        font-size: 14px;
-        color: #ccc;
-        margin-bottom: 5px;
-      }
-
-      .typing {
-        color: #aaa;
-        font-style: italic;
-      }
-
-      .serverBox {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-      }
-
-      .serverBox input {
-        flex: 1;
-      }
-
-      .message {
-        margin: 5px 0;
-      }
-
-      .username {
-        color: #004cff;
-        font-weight: 600;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="container">
-      <h1>💬 DevHub</h1>
-
-      <div id="auth">
-        <input type="text" id="username" placeholder="Enter your username" /><br /><br />
-        <div class="serverBox">
-          <button id="createServer">Create Server</button>
-          <input type="text" id="serverId" placeholder="Enter server ID" />
-          <button id="joinServer">Join Server</button>
-        </div>
-        <p id="serverCodeDisplay"></p>
-      </div>
-
-      <div id="chat">
-        <div id="userList"></div>
-        <div id="messages"></div>
-        <div id="typing"></div>
-        <div style="display: flex; gap: 10px">
-          <input id="messageInput" placeholder="Type your message..." />
-          <button id="sendBtn">Send</button>
-        </div>
-      </div>
+    <div id="setup">
+      <input id="username" placeholder="Enter username">
+      <button id="createBtn">Create Server</button>
+      <input id="joinId" placeholder="Enter Server ID">
+      <button id="joinBtn">Join Server</button>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      const socket = io();
-      let username = "";
-      let currentServer = "";
+    <div id="chat" style="display:none;">
+      <div id="serverCodeDisplay"></div>
+      <div id="messages"></div>
+      <input id="msgInput" placeholder="Type a message...">
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
 
-      const usernameInput = document.getElementById("username");
-      const createBtn = document.getElementById("createServer");
-      const joinBtn = document.getElementById("joinServer");
-      const serverIdInput = document.getElementById("serverId");
-      const chatDiv = document.getElementById("chat");
-      const messagesDiv = document.getElementById("messages");
-      const userList = document.getElementById("userList");
-      const typingDiv = document.getElementById("typing");
-      const msgInput = document.getElementById("messageInput");
-      const sendBtn = document.getElementById("sendBtn");
-      const serverCodeDisplay = document.getElementById("serverCodeDisplay");
+  <script>
+    const socket = io();
+    const usernameInput = document.getElementById("username");
+    const createBtn = document.getElementById("createBtn");
+    const joinBtn = document.getElementById("joinBtn");
+    const joinIdInput = document.getElementById("joinId");
+    const messagesDiv = document.getElementById("messages");
+    const msgInput = document.getElementById("msgInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const setupDiv = document.getElementById("setup");
+    const chatDiv = document.getElementById("chat");
+    const serverCodeDisplay = document.getElementById("serverCodeDisplay");
 
-      // CREATE SERVER
-      createBtn.onclick = () => {
-        username = usernameInput.value.trim();
-        if (!username) return alert("Enter a username!");
-        socket.emit("createServer", { user: username });
-      };
+    let currentServer = null;
+    let username = null;
 
-      // JOIN SERVER
-      joinBtn.onclick = () => {
-        username = usernameInput.value.trim();
-        const serverId = serverIdInput.value.trim().toUpperCase();
-        if (!username || !serverId) return alert("Enter username and server ID!");
-        socket.emit("joinServer", { serverId, user: username });
-      };
+    createBtn.onclick = () => {
+      username = usernameInput.value.trim();
+      if (!username) return alert("Enter a username!");
+      socket.emit("createServer", username);
+    };
 
-      // On server created
-      socket.on("serverCreated", (data) => {
-        currentServer = data.serverId;
-        serverCodeDisplay.innerHTML = `✅ Server created! Code: <strong>${currentServer}</strong>`;
-      });
+    joinBtn.onclick = () => {
+      username = usernameInput.value.trim();
+      const id = joinIdInput.value.trim();
+      if (!username || !id) return alert("Enter username and server ID!");
+      socket.emit("joinServer", { serverId: id, user: username });
+    };
 
-      // On successful join
-socket.on("serverJoined", (data) => {
-    currentServer = data.serverId; // <--- THIS IS THE FIX
-    chatDiv.style.display = "block";
-    serverCodeDisplay.innerHTML = `✅ Joined server: <strong>${currentServer}</strong>`;
-});
+    socket.on("serverCreated", ({ serverId }) => {
+      currentServer = serverId;
+      setupDiv.style.display = "none";
+      chatDiv.style.display = "block";
+      serverCodeDisplay.textContent = `✅ Server ID: ${serverId}`;
+    });
 
-// Receiving messages
-socket.on("message", (data) => {
-    const msg = document.createElement("div");
-    msg.classList.add("message");
-    msg.innerHTML = `<span class="username">${data.user}:</span> ${data.msg}`;
-    messagesDiv.appendChild(msg);
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-});
+    socket.on("serverJoined", ({ serverId }) => {
+      currentServer = serverId;
+      setupDiv.style.display = "none";
+      chatDiv.style.display = "block";
+      serverCodeDisplay.textContent = `✅ Joined server: ${serverId}`;
+    });
 
+    socket.on("message", (data) => {
+      const msg = document.createElement("div");
+      msg.classList.add("message");
+      msg.innerHTML = `<span class="username">${data.user}:</span> ${data.msg}`;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
 
-        // Show chat if hidden
-        chatDiv.style.display = "block";
-      });
-
-      // Show users
-      socket.on("updateUsers", (users) => {
-        userList.textContent = "Online: " + users.join(", ");
-      });
-
-      // Typing indicator
-      msgInput.addEventListener("input", () => {
-        socket.emit("typing", { serverId: currentServer, user: username });
-        clearTimeout(window.typingTimeout);
-        window.typingTimeout = setTimeout(() => {
-          socket.emit("stopTyping", { serverId: currentServer, user: username });
-        }, 1000);
-      });
-
-      socket.on("typing", ({ user }) => {
-        typingDiv.textContent = `${user} is typing...`;
-      });
-
-      socket.on("stopTyping", () => {
-        typingDiv.textContent = "";
-      });
-
-      // Send message
-      sendBtn.onclick = () => {
-        const msg = msgInput.value.trim();
-        if (!msg) return;
-        socket.emit("message", { serverId: currentServer, user: username, msg });
-        msgInput.value = "";
-        socket.emit("stopTyping", { serverId: currentServer, user: username });
-      };
-    </script>
-  </body>
+    sendBtn.onclick = () => {
+      const msg = msgInput.value.trim();
+      if (!msg || !currentServer) return;
+      socket.emit("sendMessage", { serverId: currentServer, user: username, msg });
+      msgInput.value = "";
+    };
+  </script>
+</body>
 </html>
