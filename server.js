@@ -1,4 +1,3 @@
-// DevHub 2.2 — Working servers, messaging, and typing indicator
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -8,80 +7,85 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+const PORT = process.env.PORT || 3000;
+
+// Serve static files
 app.use(express.static(path.join(__dirname, "public")));
-app.use(express.json());
 
-let servers = {
-  global: { name: "Global Chat", users: {}, messages: [] },
-};
+// Store servers and their users/messages
+const servers = {}; // { serverId: { users: [], messages: [] } }
 
-// Create new server endpoint
-app.post("/create-server", (req, res) => {
-  const { name } = req.body;
-  const id = Math.random().toString(36).substring(2, 8);
-  servers[id] = { name, users: {}, messages: [] };
-  console.log(`✅ Created server: ${name} (${id})`);
-  res.json({ id });
-});
+function generateServerId() {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+}
 
-// Socket.io setup
+// When a user connects
 io.on("connection", (socket) => {
-  console.log("🟢 New connection:", socket.id);
-  let currentServer = "global";
-  let username = "Anonymous";
+  console.log("🟢 A user connected");
 
-  // Join server
+  // Create a new server
+  socket.on("createServer", (data) => {
+    const serverId = generateServerId();
+    servers[serverId] = { users: [], messages: [] };
+    socket.emit("serverCreated", { serverId });
+    console.log(`✅ Server created: ${serverId}`);
+  });
+
+  // Join a server
   socket.on("joinServer", ({ serverId, user }) => {
-    if (!servers[serverId]) servers[serverId] = { name: "Untitled", users: {}, messages: [] };
-
-    // Leave old server first
-    socket.leave(currentServer);
-    currentServer = serverId;
-    username = user;
+    if (!servers[serverId]) {
+      socket.emit("message", { user: "System", msg: "❌ Invalid server ID." });
+      return;
+    }
 
     socket.join(serverId);
-    servers[serverId].users[socket.id] = username;
+    socket.serverId = serverId;
+    socket.username = user;
 
-    io.to(serverId).emit("updateUsers", Object.values(servers[serverId].users));
-    socket.emit("chatHistory", servers[serverId].messages);
-
-    io.to(serverId).emit("message", {
-      user: "System",
-      text: `${username} joined the chat.`,
-      timestamp: new Date().toLocaleTimeString(),
-    });
-  });
-
-  // Handle chat messages
-  socket.on("chatMessage", (msg) => {
-    const message = {
-      user: username,
-      text: msg,
-      timestamp: new Date().toLocaleTimeString(),
-    };
-    servers[currentServer].messages.push(message);
-    io.to(currentServer).emit("message", message);
-  });
-
-  // Typing indicator
-  socket.on("typing", (isTyping) => {
-    socket.to(currentServer).emit("userTyping", { user: username, isTyping });
-  });
-
-  // Handle disconnect
-  socket.on("disconnect", () => {
-    if (servers[currentServer]) {
-      delete servers[currentServer].users[socket.id];
-      io.to(currentServer).emit("updateUsers", Object.values(servers[currentServer].users));
-      io.to(currentServer).emit("message", {
-        user: "System",
-        text: `${username} left the chat.`,
-        timestamp: new Date().toLocaleTimeString(),
-      });
+    if (!servers[serverId].users.includes(user)) {
+      servers[serverId].users.push(user);
     }
-    console.log("🔴 Disconnected:", socket.id);
+
+    console.log(`${user} joined ${serverId}`);
+
+    // Notify others
+    io.to(serverId).emit("updateUsers", servers[serverId].users);
+    io.to(serverId).emit("message", { user: "System", msg: `${user} joined the chat!` });
+  });
+
+  // Handle message sending
+  socket.on("message", ({ serverId, user, msg }) => {
+    if (!servers[serverId]) return;
+    const message = { user, msg };
+    servers[serverId].messages.push(message);
+    io.to(serverId).emit("message", message);
+  });
+
+  // Typing indicators
+  socket.on("typing", ({ serverId, user }) => {
+    socket.to(serverId).emit("typing", { user });
+  });
+
+  socket.on("stopTyping", ({ serverId, user }) => {
+    socket.to(serverId).emit("stopTyping", { user });
+  });
+
+  // When user disconnects
+  socket.on("disconnect", () => {
+    const serverId = socket.serverId;
+    const user = socket.username;
+
+    if (serverId && servers[serverId]) {
+      servers[serverId].users = servers[serverId].users.filter((u) => u !== user);
+      io.to(serverId).emit("updateUsers", servers[serverId].users);
+      io.to(serverId).emit("message", { user: "System", msg: `${user} left the chat.` });
+    }
+
+    console.log("🔴 User disconnected");
   });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`✅ DevHub running on port ${PORT}`));
+// Start the server
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
