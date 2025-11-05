@@ -1,44 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DevHub</title>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
-  <script src="/socket.io/socket.io.js"></script>
-</head>
-<body>
-  <header class="topbar">
-    <div class="server-id">Server: <span id="server-code-display"></span></div>
-    <div class="controls">
-      <button id="notif-btn">🔔 Notifications</button>
-      <button id="dark-toggle">🌙</button>
+  <head>
+    <meta charset="UTF-8" />
+    <title>DevHub</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+        font-family: "Nunito", sans-serif;
+      }
+      body {
+        background: #0b0b0f;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0;
+        height: 100vh;
+      }
+      header {
+        background: #004cff;
+        width: 100%;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 700;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+      }
+      #joinForm {
+        margin-top: 2rem;
+      }
+      input {
+        padding: 0.6rem;
+        margin: 0.2rem;
+        border-radius: 8px;
+        border: none;
+      }
+      button {
+        background: #004cff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem 1rem;
+        cursor: pointer;
+      }
+      #chat {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        width: 90%;
+        max-width: 600px;
+        margin-top: 2rem;
+      }
+      #messages {
+        width: 100%;
+        background: #12121a;
+        padding: 1rem;
+        border-radius: 12px;
+        height: 300px;
+        overflow-y: auto;
+      }
+      #serverIdDisplay {
+        font-size: 0.9rem;
+        color: #ccc;
+        margin-top: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>DevHub 💬</header>
+
+    <div id="joinForm">
+      <input id="username" placeholder="Username" />
+      <input id="serverId" placeholder="Server ID" />
+      <button onclick="joinServer()">Join Server</button>
     </div>
-  </header>
 
-  <div class="container">
-    <aside class="sidebar">
-      <h2>Servers</h2>
-      <ul id="server-list">
-        <li># General</li>
-        <li># DevTalk</li>
-        <li># AI Lounge</li>
-      </ul>
-    </aside>
-
-    <main>
+    <div id="chat">
+      <div id="serverIdDisplay"></div>
       <div id="messages"></div>
-      <form id="msg-form">
-        <input id="msg-input" type="text" placeholder="Type a message..." autocomplete="off" />
-        <button>Send</button>
-      </form>
-    </main>
-  </div>
+      <input id="messageInput" placeholder="Type message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
 
-  <!-- Hidden Notification Panel -->
-  <div id="notif-panel" class="hidden"></div>
-
-  <script src="client.js"></script>
-</body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
+  </body>
 </html>
