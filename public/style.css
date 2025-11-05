@@ -1,146 +1,119 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap');
-
-:root {
-  --primary: #004cff;
-  --white: #ffffff;
-  --dark-bg: #001233;
-  --light-bg: #f0f0ff;
-}
-
 body {
   font-family: 'Nunito', sans-serif;
-  background: var(--white);
-  color: #000;
+  background: #ffffff;
+  color: #004cff;
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 20px;
-  transition: 0.3s;
+  transition: background 0.3s, color 0.3s;
+}
+body.dark {
+  background: #0e0e10;
+  color: #ffffff;
 }
 
-.dark {
-  background: var(--dark-bg);
-  color: var(--white);
-}
-
-/* Header */
-.header {
-  width: 90%;
-  max-width: 700px;
+.topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: var(--primary);
-  color: var(--white);
-  border-radius: 14px;
-  padding: 12px 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  padding: 10px 20px;
+  background: #004cff;
+  color: #fff;
+  font-weight: 600;
 }
 
-/* Notifications */
-.notif-panel {
-  width: 90%;
-  max-width: 700px;
-  background: var(--white);
-  border-radius: 12px;
-  padding: 10px 15px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.1);
-  overflow-y: auto;
-  max-height: 150px;
+.container {
+  display: flex;
+  height: calc(100vh - 60px);
 }
 
-.dark .notif-panel {
-  background: #10275f;
-}
-
-.notif-panel h2 {
-  font-size: 1rem;
-  margin: 0 0 5px;
-  color: var(--primary);
-}
-
-.notif {
-  background: var(--primary);
-  color: var(--white);
-  margin: 5px 0;
-  padding: 8px 12px;
-  border-radius: 8px;
-  animation: fadeIn 0.3s;
-}
-
-/* Messages */
-.messages {
-  width: 90%;
-  max-width: 700px;
-  height: 55vh;
-  overflow-y: auto;
-  border-radius: 12px;
+.sidebar {
+  width: 220px;
+  background: #eaf0ff;
   padding: 15px;
-  background: var(--light-bg);
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-right: 2px solid #004cff;
+}
+body.dark .sidebar {
+  background: #15161a;
+  border-color: #1e1f25;
 }
 
-.dark .messages {
-  background: #0b1b47;
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
 }
 
 .message {
-  margin: 6px 0;
+  background: #eaf0ff;
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  display: inline-block;
+}
+body.dark .message {
+  background: #1e1f25;
 }
 
-/* Message Form */
 #msg-form {
   display: flex;
-  gap: 10px;
-  width: 90%;
-  max-width: 700px;
-  margin-top: 10px;
+  padding: 10px;
+  background: #f5f7ff;
+  border-top: 2px solid #004cff;
 }
-
-#msg-input {
+#msg-form input {
   flex: 1;
+  padding: 10px;
+  border-radius: 10px;
   border: none;
-  padding: 12px;
-  border-radius: 12px;
   outline: none;
-  background: #fff;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
-
-.dark #msg-input {
-  background: #152a64;
-  color: var(--white);
-}
-
-/* Buttons */
-button {
-  background: var(--primary);
-  color: var(--white);
+#msg-form button {
+  background: #004cff;
+  color: #fff;
   border: none;
   padding: 10px 16px;
-  border-radius: 12px;
+  margin-left: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.3s;
+}
+#msg-form button:hover {
+  background: #0038c2;
 }
 
-button:hover {
-  background: #0033cc;
+/* Notifications Panel */
+#notif-panel {
+  position: fixed;
+  top: 60px;
+  right: 15px;
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 2px solid #004cff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 10px;
+  z-index: 999;
 }
-
-/* Footer */
-.footer {
-  font-size: 0.9rem;
-  color: #777;
+body.dark #notif-panel {
+  background: #1e1f25;
+  border-color: #1e1f25;
 }
-
-.dark .footer {
-  color: #ccc;
+#notif-panel.hidden {
+  display: none;
 }
-
-/* Animation */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+.notif {
+  padding: 8px;
+  margin-bottom: 6px;
+  border-radius: 10px;
+  background: #eaf0ff;
 }
+body.dark .notif {
+  background: #2b2c33;
+}
+/*hi everyone*/
