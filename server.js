@@ -12,21 +12,18 @@ app.use(express.static(path.join(__dirname, "public")));
 const servers = {}; // { serverId: { users: {}, messages: [] } }
 
 io.on("connection", (socket) => {
-  console.log("A user connected:", socket.id);
+  console.log("User connected:", socket.id);
 
   socket.on("joinServer", ({ username, serverId }) => {
     if (!servers[serverId]) {
       servers[serverId] = { users: {}, messages: [] };
     }
+
     socket.join(serverId);
     servers[serverId].users[socket.id] = username;
 
-    // Notify others
-    socket.to(serverId).emit("notification", `${username} joined the server.`);
-    console.log(`${username} joined server ${serverId}`);
-
-    // Send chat history
-    socket.emit("chatHistory", servers[serverId].messages);
+    io.to(serverId).emit("notification", `${username} joined the server!`);
+    io.to(serverId).emit("chatHistory", servers[serverId].messages);
   });
 
   socket.on("sendMessage", ({ username, serverId, message }) => {
@@ -37,4 +34,15 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    for (const [serverId, data] of Object.entries(servers))
+    for (const [serverId, data] of Object.entries(servers)) {
+      if (data.users[socket.id]) {
+        const username = data.users[socket.id];
+        delete data.users[socket.id];
+        io.to(serverId).emit("notification", `${username} left the server.`);
+      }
+    }
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
