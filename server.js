@@ -1,49 +1,122 @@
 const express = require("express");
-const app = express();
-const http = require("http").createServer(app);
-const io = require("socket.io")(http);
+const http = require("http");
+const { Server } = require("socket.io");
 const path = require("path");
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, "public")));
 
-const servers = {}; // { serverId: [ {id, user} ] }
+const servers = {}; // { serverCode: { owner, admins, banned, members } }
+const users = {};   // { socket.id: { username, serverCode } }
 
 io.on("connection", (socket) => {
-  console.log("New client connected");
+  console.log("User connected:", socket.id);
 
-  socket.on("createServer", (user) => {
-    const serverId = Math.random().toString(36).substring(2, 8);
-    servers[serverId] = [{ id: socket.id, user }];
-    socket.join(serverId);
-    socket.emit("serverCreated", { serverId });
-    console.log(`${user} created server ${serverId}`);
+  // User joins with username + serverCode
+  socket.on("joinServer", ({ username, serverCode }) => {
+    users[socket.id] = { username, serverCode };
+
+    if (!servers[serverCode]) {
+      servers[serverCode] = {
+        owner: username,
+        admins: [],
+        banned: [],
+        members: []
+      };
+    }
+
+    const serverData = servers[serverCode];
+
+    if (serverData.banned.includes(username)) {
+      socket.emit("notification", {
+        message: "You are banned from this server."
+      });
+      socket.disconnect();
+      return;
+    }
+
+    serverData.members.push(username);
+    socket.join(serverCode);
+
+    io.to(serverCode).emit("notification", {
+      message: `${username} joined the server!`
+    });
+
+    console.log(`${username} joined ${serverCode}`);
   });
 
-  socket.on("joinServer", ({ serverId, user }) => {
-    if (servers[serverId]) {
-      servers[serverId].push({ id: socket.id, user });
-      socket.join(serverId);
-      socket.emit("serverJoined", { serverId });
-      io.to(serverId).emit("updateUsers", servers[serverId].map(u => u.user));
-      console.log(`${user} joined ${serverId}`);
-    } else {
-      socket.emit("message", { user: "System", msg: "❌ Server not found!" });
+  // Chat message
+  socket.on("chatMessage", (msg) => {
+    const user = users[socket.id];
+    if (!user) return;
+    const { username, serverCode } = user;
+    io.to(serverCode).emit("message", { username, text: msg });
+  });
+
+  // Promote
+  socket.on("promote", ({ serverCode, targetUser }) => {
+    const user = users[socket.id];
+    if (!user) return;
+
+    const serverData = servers[serverCode];
+    if (serverData.owner === user.username) {
+      if (!serverData.admins.includes(targetUser)) {
+        serverData.admins.push(targetUser);
+        io.to(serverCode).emit("notification", {
+          message: `${targetUser} was promoted to Admin by ${user.username}`
+        });
+      }
     }
   });
 
-  socket.on("sendMessage", ({ serverId, user, msg }) => {
-    if (servers[serverId]) {
-      io.to(serverId).emit("message", { user, msg });
+  // Ban
+  socket.on("ban", ({ serverCode, targetUser }) => {
+    const user = users[socket.id];
+    if (!user) return;
+
+    const serverData = servers[serverCode];
+    if (
+      serverData.owner === user.username ||
+      serverData.admins.includes(user.username)
+    ) {
+      if (!serverData.banned.includes(targetUser)) {
+        serverData.banned.push(targetUser);
+        serverData.members = serverData.members.filter(
+          (m) => m !== targetUser
+        );
+        io.to(serverCode).emit("notification", {
+          message: `${targetUser} was banned by ${user.username}`
+        });
+
+        // Kick banned user if online
+        for (const [id, data] of Object.entries(users)) {
+          if (data.username === targetUser && data.serverCode === serverCode) {
+            io.sockets.sockets.get(id)?.disconnect();
+          }
+        }
+      }
     }
   });
 
+  // Handle disconnects
   socket.on("disconnect", () => {
-    for (const id in servers) {
-      servers[id] = servers[id].filter(u => u.id !== socket.id);
-      io.to(id).emit("updateUsers", servers[id].map(u => u.user));
+    const user = users[socket.id];
+    if (user) {
+      const { username, serverCode } = user;
+      const serverData = servers[serverCode];
+      if (serverData) {
+        serverData.members = serverData.members.filter((m) => m !== username);
+        io.to(serverCode).emit("notification", {
+          message: `${username} left the server`
+        });
+      }
+      delete users[socket.id];
     }
   });
 });
 
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
