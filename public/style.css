@@ -1,9 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap');
 
+:root {
+  --primary: #004cff;
+  --white: #ffffff;
+  --dark-bg: #001233;
+  --light-bg: #f0f0ff;
+}
+
 body {
   font-family: 'Nunito', sans-serif;
-  background: #ffffff;
+  background: var(--white);
   color: #000;
+  margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -13,18 +21,64 @@ body {
 }
 
 .dark {
-  background: #001233;
-  color: #fff;
+  background: var(--dark-bg);
+  color: var(--white);
 }
 
+/* Header */
+.header {
+  width: 90%;
+  max-width: 700px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--primary);
+  color: var(--white);
+  border-radius: 14px;
+  padding: 12px 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Notifications */
+.notif-panel {
+  width: 90%;
+  max-width: 700px;
+  background: var(--white);
+  border-radius: 12px;
+  padding: 10px 15px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  max-height: 150px;
+}
+
+.dark .notif-panel {
+  background: #10275f;
+}
+
+.notif-panel h2 {
+  font-size: 1rem;
+  margin: 0 0 5px;
+  color: var(--primary);
+}
+
+.notif {
+  background: var(--primary);
+  color: var(--white);
+  margin: 5px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  animation: fadeIn 0.3s;
+}
+
+/* Messages */
 .messages {
   width: 90%;
-  max-width: 600px;
-  height: 60vh;
+  max-width: 700px;
+  height: 55vh;
   overflow-y: auto;
   border-radius: 12px;
   padding: 15px;
-  background: #f0f0ff;
+  background: var(--light-bg);
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
@@ -33,20 +87,22 @@ body {
 }
 
 .message {
-  margin: 5px 0;
+  margin: 6px 0;
 }
 
+/* Message Form */
 #msg-form {
   display: flex;
   gap: 10px;
   width: 90%;
-  max-width: 600px;
+  max-width: 700px;
+  margin-top: 10px;
 }
 
 #msg-input {
   flex: 1;
   border: none;
-  padding: 10px;
+  padding: 12px;
   border-radius: 12px;
   outline: none;
   background: #fff;
@@ -55,12 +111,13 @@ body {
 
 .dark #msg-input {
   background: #152a64;
-  color: #fff;
+  color: var(--white);
 }
 
+/* Buttons */
 button {
-  background: #004cff;
-  color: #fff;
+  background: var(--primary);
+  color: var(--white);
   border: none;
   padding: 10px 16px;
   border-radius: 12px;
@@ -72,28 +129,17 @@ button:hover {
   background: #0033cc;
 }
 
-.notif-panel {
-  width: 90%;
-  max-width: 600px;
-  background: #fff;
-  border-radius: 12px;
-  padding: 10px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.15);
+/* Footer */
+.footer {
+  font-size: 0.9rem;
+  color: #777;
 }
 
-.dark .notif-panel {
-  background: #10275f;
+.dark .footer {
+  color: #ccc;
 }
 
-.notif {
-  background: #004cff;
-  color: #fff;
-  margin: 5px 0;
-  padding: 8px 12px;
-  border-radius: 8px;
-  animation: fadeIn 0.3s;
-}
-
+/* Animation */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
