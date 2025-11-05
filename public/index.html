@@ -3,39 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DevHub Chat</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet" />
+  <title>DevHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="/socket.io/socket.io.js"></script>
 </head>
-
 <body>
-  <header class="header">
-    <h1>💬 DevHub Chat</h1>
-    <button id="dark-toggle">🌙 Dark Mode</button>
+  <header class="topbar">
+    <div class="server-id">Server: <span id="server-code-display"></span></div>
+    <div class="controls">
+      <button id="notif-btn">🔔 Notifications</button>
+      <button id="dark-toggle">🌙</button>
+    </div>
   </header>
 
-  <!-- Notifications Section -->
-  <section id="notif-panel" class="notif-panel">
-    <h2>🔔 Notifications</h2>
-  </section>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>Servers</h2>
+      <ul id="server-list">
+        <li># General</li>
+        <li># DevTalk</li>
+        <li># AI Lounge</li>
+      </ul>
+    </aside>
 
-  <!-- Chat Section -->
-  <main>
-    <div id="messages" class="messages"></div>
+    <main>
+      <div id="messages"></div>
+      <form id="msg-form">
+        <input id="msg-input" type="text" placeholder="Type a message..." autocomplete="off" />
+        <button>Send</button>
+      </form>
+    </main>
+  </div>
 
-    <form id="msg-form">
-      <input id="msg-input" type="text" placeholder="Type a message..." autocomplete="off" />
-      <button type="submit">Send</button>
-    </form>
-  </main>
+  <!-- Hidden Notification Panel -->
+  <div id="notif-panel" class="hidden"></div>
 
-  <footer class="footer">
-    <p>Made with 💙 using Node.js & Socket.io</p>
-  </footer>
-
-  <!-- Socket.IO + Client JS -->
-  <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
 </body>
 </html>
