@@ -1,135 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DevHub</title>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: "Nunito", sans-serif;
-      background: #0a0a0a;
-      color: white;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    #app {
-      width: 420px;
-      background: #111;
-      border-radius: 20px;
-      padding: 25px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
-    }
-    input, button {
-      border: none;
-      outline: none;
-      border-radius: 10px;
-      padding: 10px;
-      margin: 5px 0;
-      width: 100%;
-      font-size: 16px;
-    }
-    input { background: #222; color: white; }
-    button {
-      background: #004cff;
-      color: white;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    button:hover { opacity: 0.9; }
-    #messages {
-      background: #1a1a1a;
-      border-radius: 10px;
-      padding: 10px;
-      height: 250px;
-      overflow-y: auto;
-      margin-bottom: 10px;
-    }
-    .message { margin-bottom: 8px; }
-    .username { color: #004cff; font-weight: 600; }
-    #serverCodeDisplay { color: #004cff; margin-bottom: 10px; font-weight: 700; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevHub Chat</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968282.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap" rel="stylesheet" />
 </head>
+
 <body>
-  <div id="app">
-    <h2>💬 DevHub</h2>
+  <header class="header">
+    <h1>💬 DevHub Chat</h1>
+    <button id="dark-toggle">🌙 Dark Mode</button>
+  </header>
 
-    <div id="setup">
-      <input id="username" placeholder="Enter username">
-      <button id="createBtn">Create Server</button>
-      <input id="joinId" placeholder="Enter Server ID">
-      <button id="joinBtn">Join Server</button>
-    </div>
+  <!-- Notifications Section -->
+  <section id="notif-panel" class="notif-panel">
+    <h2>🔔 Notifications</h2>
+  </section>
 
-    <div id="chat" style="display:none;">
-      <div id="serverCodeDisplay"></div>
-      <div id="messages"></div>
-      <input id="msgInput" placeholder="Type a message...">
-      <button id="sendBtn">Send</button>
-    </div>
-  </div>
+  <!-- Chat Section -->
+  <main>
+    <div id="messages" class="messages"></div>
 
-  <script>
-    const socket = io();
-    const usernameInput = document.getElementById("username");
-    const createBtn = document.getElementById("createBtn");
-    const joinBtn = document.getElementById("joinBtn");
-    const joinIdInput = document.getElementById("joinId");
-    const messagesDiv = document.getElementById("messages");
-    const msgInput = document.getElementById("msgInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const setupDiv = document.getElementById("setup");
-    const chatDiv = document.getElementById("chat");
-    const serverCodeDisplay = document.getElementById("serverCodeDisplay");
+    <form id="msg-form">
+      <input id="msg-input" type="text" placeholder="Type a message..." autocomplete="off" />
+      <button type="submit">Send</button>
+    </form>
+  </main>
 
-    let currentServer = null;
-    let username = null;
+  <footer class="footer">
+    <p>Made with 💙 using Node.js & Socket.io</p>
+  </footer>
 
-    createBtn.onclick = () => {
-      username = usernameInput.value.trim();
-      if (!username) return alert("Enter a username!");
-      socket.emit("createServer", username);
-    };
-
-    joinBtn.onclick = () => {
-      username = usernameInput.value.trim();
-      const id = joinIdInput.value.trim();
-      if (!username || !id) return alert("Enter username and server ID!");
-      socket.emit("joinServer", { serverId: id, user: username });
-    };
-
-    socket.on("serverCreated", ({ serverId }) => {
-      currentServer = serverId;
-      setupDiv.style.display = "none";
-      chatDiv.style.display = "block";
-      serverCodeDisplay.textContent = `✅ Server ID: ${serverId}`;
-    });
-
-    socket.on("serverJoined", ({ serverId }) => {
-      currentServer = serverId;
-      setupDiv.style.display = "none";
-      chatDiv.style.display = "block";
-      serverCodeDisplay.textContent = `✅ Joined server: ${serverId}`;
-    });
-
-    socket.on("message", (data) => {
-      const msg = document.createElement("div");
-      msg.classList.add("message");
-      msg.innerHTML = `<span class="username">${data.user}:</span> ${data.msg}`;
-      messagesDiv.appendChild(msg);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    });
-
-    sendBtn.onclick = () => {
-      const msg = msgInput.value.trim();
-      if (!msg || !currentServer) return;
-      socket.emit("sendMessage", { serverId: currentServer, user: username, msg });
-      msgInput.value = "";
-    };
-  </script>
+  <!-- Socket.IO + Client JS -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
 </body>
 </html>
