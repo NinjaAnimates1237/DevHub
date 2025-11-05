@@ -1,74 +1,99 @@
+// Connect to the server
 const socket = io();
-let username = "";
-let serverCode = "";
 
-// 🌟 Ask for username and server on join
-window.addEventListener("load", () => {
-  username = prompt("Enter your username:");
-  serverCode = prompt("Enter server code to join:");
-
-  if (!username || !serverCode) {
-    alert("You must enter a username and server code!");
-    location.reload();
-  } else {
-    socket.emit("joinServer", { username, serverCode });
-  }
-});
-
-// 📩 Message sending
-const msgForm = document.getElementById("msg-form");
-const msgInput = document.getElementById("msg-input");
+// Elements
+const form = document.getElementById("msg-form");
+const input = document.getElementById("msg-input");
 const messages = document.getElementById("messages");
 const notifPanel = document.getElementById("notif-panel");
-const toggleDarkBtn = document.getElementById("dark-toggle");
+const darkToggle = document.getElementById("dark-toggle");
 
-// 🔘 Dark mode toggle
-toggleDarkBtn?.addEventListener("click", () => {
+// Username and Server selection
+let username = localStorage.getItem("username");
+let serverCode = localStorage.getItem("serverCode");
+
+if (!username) {
+  username = prompt("Enter your username:") || "Guest";
+  localStorage.setItem("username", username);
+}
+
+if (!serverCode) {
+  serverCode = prompt("Enter server code to join:") || "global";
+  localStorage.setItem("serverCode", serverCode);
+}
+
+// Send user info to server
+socket.emit("joinServer", { username, serverCode });
+
+// --- DARK MODE TOGGLE ---
+darkToggle.addEventListener("click", () => {
   document.body.classList.toggle("dark");
-  toggleDarkBtn.textContent = document.body.classList.contains("dark")
-    ? "☀️ Light Mode"
-    : "🌙 Dark Mode";
+  localStorage.setItem("darkMode", document.body.classList.contains("dark"));
 });
 
-// 📨 Send message or admin command
-msgForm.addEventListener("submit", (e) => {
+// Keep dark mode state saved
+if (localStorage.getItem("darkMode") === "true") {
+  document.body.classList.add("dark");
+}
+
+// --- MESSAGE SEND ---
+form.addEventListener("submit", (e) => {
   e.preventDefault();
-  const msg = msgInput.value.trim();
-  if (!msg) return;
-
-  // 🛠️ Commands
-  if (msg.startsWith("/ban ")) {
-    const target = msg.split(" ")[1];
-    socket.emit("ban", { serverCode, targetUser: target });
-  } else if (msg.startsWith("/promote ")) {
-    const target = msg.split(" ")[1];
-    socket.emit("promote", { serverCode, targetUser: target });
-  } else if (msg.startsWith("/kick ")) {
-    const target = msg.split(" ")[1];
-    socket.emit("ban", { serverCode, targetUser: target });
-  } else {
-    socket.emit("chatMessage", msg);
+  if (input.value.trim() !== "") {
+    socket.emit("chatMessage", {
+      username,
+      text: input.value,
+      serverCode,
+    });
+    input.value = "";
   }
-
-  msgInput.value = "";
 });
 
-// 💬 Receive chat messages
-socket.on("message", (data) => {
-  const msgEl = document.createElement("div");
-  msgEl.classList.add("message");
-  msgEl.innerHTML = `<strong style="color:#004cff">${data.username}</strong>: ${data.text}`;
-  messages.appendChild(msgEl);
+// --- RECEIVE MESSAGES ---
+socket.on("chatMessage", (msg) => {
+  addMessage(`${msg.username}: ${msg.text}`);
+});
+
+// --- USER JOIN/LEAVE ---
+socket.on("userJoin", (user) => {
+  addNotification(`${user} joined the server`);
+});
+
+socket.on("userLeave", (user) => {
+  addNotification(`${user} left the server`);
+});
+
+// --- ADMIN ACTIONS (placeholders) ---
+socket.on("userBanned", (bannedUser) => {
+  if (bannedUser === username) {
+    alert("You have been banned from this server.");
+    window.location.reload();
+  }
+  addNotification(`${bannedUser} was banned by an admin.`);
+});
+
+// --- FUNCTIONS ---
+function addMessage(text) {
+  const div = document.createElement("div");
+  div.classList.add("message");
+  div.textContent = text;
+  messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
+}
+
+function addNotification(text) {
+  const div = document.createElement("div");
+  div.classList.add("notif");
+  div.textContent = text;
+  notifPanel.appendChild(div);
+  notifPanel.scrollTop = notifPanel.scrollHeight;
+}
+
+// --- RECONNECTION HANDLING ---
+socket.on("disconnect", () => {
+  addNotification("⚠️ Disconnected from server.");
 });
 
-// 🔔 Notifications (joins, bans, promotions, etc.)
-socket.on("notification", (data) => {
-  const notif = document.createElement("div");
-  notif.classList.add("notif");
-  notif.textContent = data.message;
-  notifPanel.prepend(notif);
-
-  // auto-hide after 6s
-  setTimeout(() => notif.remove(), 6000);
+socket.on("connect", () => {
+  addNotification("✅ Connected to server.");
 });
