@@ -1,93 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <meta charset="UTF-8" />
-    <title>DevHub</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      * {
-        box-sizing: border-box;
-        font-family: "Nunito", sans-serif;
-      }
-      body {
-        background: #0b0b0f;
-        color: white;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin: 0;
-        height: 100vh;
-      }
-      header {
-        background: #004cff;
-        width: 100%;
-        padding: 1rem;
-        text-align: center;
-        font-weight: 700;
-        border-bottom-left-radius: 16px;
-        border-bottom-right-radius: 16px;
-      }
-      #joinForm {
-        margin-top: 2rem;
-      }
-      input {
-        padding: 0.6rem;
-        margin: 0.2rem;
-        border-radius: 8px;
-        border: none;
-      }
-      button {
-        background: #004cff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 1rem;
-        cursor: pointer;
-      }
-      #chat {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        width: 90%;
-        max-width: 600px;
-        margin-top: 2rem;
-      }
-      #messages {
-        width: 100%;
-        background: #12121a;
-        padding: 1rem;
-        border-radius: 12px;
-        height: 300px;
-        overflow-y: auto;
-      }
-      #serverIdDisplay {
-        font-size: 0.9rem;
-        color: #ccc;
-        margin-top: 0.5rem;
-      }
-    </style>
-  </head>
-  <body>
-    <header>DevHub 💬</header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevHub Chat</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --primary: #4b6fff;
+      --secondary: #a855f7;
+      --border: #dddddd;
+    }
 
-    <div id="joinForm">
-      <input id="username" placeholder="Username" />
-      <input id="serverId" placeholder="Server ID" />
-      <button onclick="joinServer()">Join Server</button>
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --border: #333333;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+      padding: 10px;
+      text-align: center;
+      font-size: 1.5em;
+    }
+
+    #topBar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--secondary);
+      color: white;
+      width: 100%;
+      padding: 8px 16px;
+      font-weight: bold;
+    }
+
+    #serverId {
+      font-size: 0.9em;
+    }
+
+    #darkModeBtn {
+      background: transparent;
+      border: none;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #chatContainer {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      max-width: 800px;
+      border: 1px solid var(--border);
+      margin-top: 10px;
+      flex-direction: column;
+    }
+
+    #notifications {
+      background: var(--secondary);
+      color: white;
+      padding: 5px;
+      text-align: center;
+    }
+
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    #chat div {
+      padding: 5px;
+      margin-bottom: 3px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #controls {
+      display: flex;
+      padding: 10px;
+      gap: 5px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    button {
+      padding: 8px 12px;
+      background: var(--primary);
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--secondary);
+    }
+
+    #adminControls {
+      display: none;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="favicon.png" width="40" style="vertical-align: middle; margin-right: 8px;">
+    DevHub Chat
+  </header>
+
+  <div id="topBar">
+    <div id="serverId">Server ID: #001</div>
+    <button id="darkModeBtn">🌙 Dark Mode</button>
+  </div>
+
+  <div id="chatContainer">
+    <div id="notifications">Welcome to DevHub!</div>
+    <div id="chat"></div>
+
+    <div id="controls">
+      <input type="text" id="usernameInput" placeholder="Enter your username..." />
+      <button id="setUsernameBtn">Join</button>
     </div>
 
-    <div id="chat">
-      <div id="serverIdDisplay"></div>
-      <div id="messages"></div>
-      <input id="messageInput" placeholder="Type message..." />
-      <button onclick="sendMessage()">Send</button>
+    <div id="controls">
+      <input type="text" id="messageInput" placeholder="Type your message..." />
+      <button id="sendBtn">Send</button>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
-  </body>
+    <div id="adminControls">
+      <button id="banBtn">Ban User</button>
+      <button id="adminBtn">Make Admin</button>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+  <script>
+    // Dark mode toggle
+    const darkModeBtn = document.getElementById("darkModeBtn");
+    darkModeBtn.addEventListener("click", () => {
+      const current = document.body.getAttribute("data-theme");
+      if (current === "dark") {
+        document.body.removeAttribute("data-theme");
+        darkModeBtn.textContent = "🌙 Dark Mode";
+      } else {
+        document.body.setAttribute("data-theme", "dark");
+        darkModeBtn.textContent = "☀️ Light Mode";
+      }
+    });
+  </script>
+</body>
 </html>
