@@ -1,46 +1,56 @@
 const socket = io();
-let username = "";
-let serverId = "";
+let isAdmin = false;
 
-function joinServer() {
-  username = document.getElementById("username").value.trim();
-  serverId = document.getElementById("serverId").value.trim();
-  if (!username || !serverId) return alert("Enter username & server ID!");
+// Set username and server
+document.getElementById("setUsernameBtn").addEventListener("click", () => {
+  const username = document.getElementById("usernameInput").value.trim();
+  if (username) {
+    socket.emit("setUsername", username);
+  }
+});
 
-  socket.emit("joinServer", { username, serverId });
-  document.getElementById("joinForm").style.display = "none";
-  document.getElementById("chat").style.display = "flex";
-  document.getElementById("serverIdDisplay").textContent = "Server ID: " + serverId;
-}
+socket.on("adminStatus", (status) => {
+  isAdmin = status;
+  if (isAdmin) {
+    document.getElementById("adminControls").style.display = "block";
+  }
+});
 
-function sendMessage() {
-  const input = document.getElementById("messageInput");
-  const message = input.value.trim();
-  if (!message) return;
-  socket.emit("sendMessage", { username, serverId, message });
-  input.value = "";
-}
+socket.on("banned", () => {
+  alert("You were banned from the server.");
+  window.location.reload();
+});
 
-socket.on("chatMessage", (msg) => {
+socket.on("serverNotification", (msg) => {
+  const notifArea = document.getElementById("notifications");
   const div = document.createElement("div");
-  div.textContent = `${msg.username}: ${msg.message}`;
-  document.getElementById("messages").appendChild(div);
+  div.textContent = msg;
+  notifArea.appendChild(div);
 });
 
-socket.on("notification", (text) => {
+// Send messages
+document.getElementById("sendBtn").addEventListener("click", () => {
+  const msg = document.getElementById("messageInput").value.trim();
+  if (msg) {
+    socket.emit("sendMessage", msg);
+    document.getElementById("messageInput").value = "";
+  }
+});
+
+socket.on("newMessage", (data) => {
+  const chat = document.getElementById("chat");
   const div = document.createElement("div");
-  div.textContent = `🔔 ${text}`;
-  div.style.color = "#00bfff";
-  document.getElementById("messages").appendChild(div);
+  div.textContent = `${data.username}: ${data.text}`;
+  chat.appendChild(div);
 });
 
-socket.on("chatHistory", (history) => {
-  const box = document.getElementById("messages");
-  box.innerHTML = "";
-  history.forEach((msg) => {
-    const div = document.createElement("div");
-    div.textContent = `${msg.username}: ${msg.message}`;
-    box.appendChild(div);
-  });
+// Admin actions
+document.getElementById("banBtn").addEventListener("click", () => {
+  const target = prompt("Enter username to ban:");
+  if (target) socket.emit("banUser", target);
 });
 
+document.getElementById("adminBtn").addEventListener("click", () => {
+  const target = prompt("Enter username to make admin:");
+  if (target) socket.emit("makeAdmin", target);
+});
