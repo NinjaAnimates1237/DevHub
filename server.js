@@ -1,109 +1,79 @@
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
-const PORT = process.env.PORT || 3000;
 
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
-let users = {}; // { socket.id: { username, serverId, isAdmin, banned } }
-let notifications = {}; // { username: [messages] }
+let users = {}; // socket.id -> username
+let admins = new Set(["NinjaIsCool"]);
+let banned = new Set();
 
 io.on("connection", (socket) => {
-  console.log("New connection:", socket.id);
+  console.log("A user connected:", socket.id);
 
-  socket.on("joinServer", ({ username, serverId }) => {
-    if (!username || !serverId) return;
+  socket.on("setUsername", (username) => {
+    if (banned.has(username)) {
+      socket.emit("banned");
+      socket.disconnect();
+      return;
+    }
 
-    // Auto-admin for NinjaIsCool 😎
-    const isAdmin = username === "NinjaIsCool";
+    users[socket.id] = username;
 
-    users[socket.id] = { username, serverId, isAdmin, banned: false };
-    socket.join(serverId);
+    // Admin check
+    if (admins.has(username)) {
+      socket.emit("adminStatus", true);
+    } else {
+      socket.emit("adminStatus", false);
+    }
 
-    io.to(serverId).emit("chatMessage", {
-      user: "System",
-      text: `${username} joined server ${serverId}`,
-    });
+    io.emit("userList", Object.values(users));
+    console.log(`${username} joined`);
+  });
 
-    // If auto-admin, notify others
-    if (isAdmin) {
-      io.to(serverId).emit("chatMessage", {
-        user: "System",
-        text: `${username} is an Admin! 👑`,
-      });
+  socket.on("sendMessage", (data) => {
+    const username = users[socket.id];
+    if (!username) return;
+
+    io.emit("newMessage", { username, text: data });
+  });
+
+  // ✅ Admin banning
+  socket.on("banUser", (target) => {
+    const username = users[socket.id];
+    if (!admins.has(username)) return;
+
+    const targetSocket = Object.keys(users).find((id) => users[id] === target);
+    if (targetSocket) {
+      banned.add(target);
+      io.to(targetSocket).emit("banned");
+      io.sockets.sockets.get(targetSocket).disconnect();
+      io.emit("serverNotification", `${target} was banned by ${username}`);
     }
   });
 
-  socket.on("chatMessage", (msg) => {
-    const user = users[socket.id];
-    if (!user || user.banned) return;
+  // ✅ Give admin
+  socket.on("makeAdmin", (target) => {
+    const username = users[socket.id];
+    if (!admins.has(username)) return;
 
-    io.to(user.serverId).emit("chatMessage", {
-      user: user.username,
-      text: msg,
-    });
-  });
-
-  socket.on("makeAdmin", (targetUser) => {
-    const user = users[socket.id];
-    if (!user || !user.isAdmin) return;
-
-    const target = Object.entries(users).find(
-      ([, info]) =>
-        info.username === targetUser && info.serverId === user.serverId
-    );
-    if (target) {
-      users[target[0]].isAdmin = true;
-      sendNotification(targetUser, `${user.username} made you an admin!`);
-      io.to(user.serverId).emit("chatMessage", {
-        user: "System",
-        text: `${targetUser} is now an Admin! 👑`,
-      });
-    }
-  });
-
-  socket.on("banUser", (targetUser) => {
-    const user = users[socket.id];
-    if (!user || !user.isAdmin) return;
-
-    const target = Object.entries(users).find(
-      ([, info]) =>
-        info.username === targetUser && info.serverId === user.serverId
-    );
-    if (target) {
-      users[target[0]].banned = true;
-      sendNotification(targetUser, `${user.username} banned you.`);
-      io.to(target[0]).emit("banned");
-      io.to(user.serverId).emit("chatMessage", {
-        user: "System",
-        text: `${targetUser} was banned by ${user.username}.`,
-      });
-    }
-  });
-
-  socket.on("getNotifications", (username) => {
-    socket.emit("notifications", notifications[username] || []);
+    admins.add(target);
+    io.emit("serverNotification", `${target} is now an admin!`);
   });
 
   socket.on("disconnect", () => {
-    const user = users[socket.id];
-    if (user) {
-      io.to(user.serverId).emit("chatMessage", {
-        user: "System",
-        text: `${user.username} left the server.`,
-      });
+    const username = users[socket.id];
+    if (username) {
       delete users[socket.id];
+      io.emit("userList", Object.values(users));
+      console.log(`${username} disconnected`);
     }
   });
-
-  function sendNotification(username, text) {
-    if (!notifications[username]) notifications[username] = [];
-    notifications[username].push(text);
-  }
 });
 
-server.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+server.listen(3000, () => console.log("✅ Server running on port 3000"));
