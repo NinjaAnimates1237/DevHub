@@ -1,106 +1,206 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DevHub Chat</title>
-  <link rel="icon" href="ChatGPT Image Nov 5, 2025, 07_24_09 PM.png" type="image/png">
-  <style>:root {
-  --bg: #f9f9fb;
-  --text: #1b1b1b;
-  --primary: #004cff;
-  --accent: #7a5cff;
-  --card: #ffffff;
-  --border: #e3e3e8;
-  --bubble-me: #dce5ff;
-  --bubble-other: #f2f2f7;
-}
+  <title>DevHub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1a1a1a;
+      --primary: #004cff;
+      --accent: #7a5cff;
+      --card: #f7f8fa;
+      --border: #e0e0e0;
+      --bubble-me: #dce5ff;
+      --bubble-other: #f2f2f7;
+    }
 
-[data-theme="dark"] {
-  --bg: #0e1018;
-  --text: #f4f4f8;
-  --card: #1a1c26;
-  --border: #2a2d3a;
-  --bubble-me: #0036d2;
-  --bubble-other: #232633;
-}
+    [data-theme="dark"] {
+      --bg: #0e1018;
+      --text: #f4f4f8;
+      --card: #1a1c26;
+      --border: #2a2d3a;
+      --bubble-me: #0036d2;
+      --bubble-other: #232633;
+    }
 
-#chat div {
-  background: var(--bubble-other);
-  color: var(--text);
-  padding: 10px 14px;
-  border-radius: 18px;
-  max-width: 75%;
-  margin-bottom: 8px;
-  line-height: 1.4;
-}
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-#chat div.me {
-  background: var(--bubble-me);
-  margin-left: auto;
-  text-align: right;
-}
+    /* Sidebar */
+    #sidebar {
+      width: 220px;
+      background-color: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
+    #sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      color: var(--primary);
+      text-align: center;
+    }
+
+    #notifications {
+      border: 1px solid var(--border);
+      background: var(--bubble-other);
+      border-radius: 14px;
+      padding: 10px;
+      font-size: 14px;
+      height: 120px;
+      overflow-y: auto;
+    }
+
+    #toggleTheme {
+      margin-top: 20px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 10px;
+      padding: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    #toggleTheme:hover {
+      background: var(--accent);
+    }
+
+    /* Main area */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #serverInfo {
+      padding: 12px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    #chat {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg {
+      padding: 10px 14px;
+      border-radius: 18px;
+      max-width: 70%;
+      word-wrap: break-word;
+      background: var(--bubble-other);
+    }
+
+    .msg.me {
+      background: var(--bubble-me);
+      margin-left: auto;
+    }
+
+    #inputArea {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid var(--border);
+      background: var(--card);
+    }
+
+    #msgInput {
+      flex: 1;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 15px;
+    }
+
+    #sendBtn {
+      margin-left: 10px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+
+    #sendBtn:hover {
+      background: var(--accent);
+    }
+
+    #adminPanel {
+      display: none;
+      position: absolute;
+      top: 70px;
+      right: 30px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    #adminPanel.visible {
+      display: block;
+    }
+
+    .admin-btn {
+      display: block;
+      width: 100%;
+      margin-top: 10px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <img src="ChatGPT Image Nov 5, 2025, 07_24_09 PM.png" width="40">
-    DevHub Chat
-  </header>
-
-  <div id="topBar">
-    <div id="serverId">Server ID: #001</div>
-    <button id="darkModeBtn">🌙 Dark</button>
+  <div id="sidebar">
+    <div>
+      <h2>DevHub</h2>
+      <div id="notifications">No new notifications</div>
+    </div>
+    <button id="toggleTheme">🌙 Toggle Theme</button>
   </div>
 
-  <div id="chatContainer">
-    <div id="notifications">Welcome to DevHub! Set your name to start chatting.</div>
+  <div id="main">
+    <div id="serverInfo">Server: <span id="serverId">devhub-main</span></div>
     <div id="chat"></div>
-
-    <div id="controls">
-      <input type="text" id="usernameInput" placeholder="Enter your username...">
-      <button id="setUsernameBtn">Join</button>
-    </div>
-
-    <div id="controls">
-      <input type="text" id="messageInput" placeholder="Type a message...">
+    <div id="inputArea">
+      <input id="msgInput" placeholder="Type a message..." />
       <button id="sendBtn">Send</button>
     </div>
+  </div>
 
-    <div id="adminControls">
-      <button id="banBtn">Ban User</button>
-      <button id="adminBtn">Make Admin</button>
-    </div>
+  <div id="adminPanel">
+    <strong>Admin Panel</strong>
+    <input id="targetUser" placeholder="Target username" style="margin-top:10px;width:100%;padding:6px;border-radius:8px;border:1px solid var(--border);" />
+    <button class="admin-btn" id="makeAdminBtn">Make Admin</button>
+    <button class="admin-btn" id="banUserBtn">Ban User</button>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
-
-  <script>
-    // 🌗 Dark mode toggle
-    const darkBtn = document.getElementById("darkModeBtn");
-    darkBtn.addEventListener("click", () => {
-      const dark = document.body.getAttribute("data-theme") === "dark";
-      document.body.setAttribute("data-theme", dark ? "" : "dark");
-      darkBtn.textContent = dark ? "🌙 Dark" : "☀️ Light";
-    });
-
-    // 🎛️ Admin panel toggle
-    let currentUsername = "";
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "0" && currentUsername === "NinjaIsCool") {
-        const panel = document.getElementById("adminControls");
-        panel.style.display = panel.style.display === "flex" ? "none" : "flex";
-      }
-    });
-
-    // Store username for admin logic
-    const usernameInput = document.getElementById("usernameInput");
-    const setUsernameBtn = document.getElementById("setUsernameBtn");
-    setUsernameBtn.addEventListener("click", () => {
-      currentUsername = usernameInput.value.trim();
-    });
-  </script>
 </body>
 </html>
