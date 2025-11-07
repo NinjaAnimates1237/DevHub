@@ -4,26 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DevHub Chat</title>
-  <link rel="icon" href="favicon.png" type="image/png">
+  <link rel="icon" href="ChatGPT Image Nov 5, 2025, 07_24_09 PM.png" type="image/png">
   <style>
     :root {
-      --bg-color: #ffffff;
-      --text-color: #000000;
-      --primary: #4b6fff;
-      --secondary: #a855f7;
-      --border: #dddddd;
+      --bg: #ffffff;
+      --text: #222;
+      --primary: #004cff;
+      --accent: #7b4bff;
+      --card: #f6f8ff;
+      --border: #d0d0d0;
     }
 
     [data-theme="dark"] {
-      --bg-color: #121212;
-      --text-color: #ffffff;
-      --border: #333333;
+      --bg: #0f111a;
+      --text: #f2f2f2;
+      --card: #181a23;
+      --border: #333;
     }
 
     body {
-      font-family: Arial, sans-serif;
-      background: var(--bg-color);
-      color: var(--text-color);
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
       margin: 0;
       display: flex;
       flex-direction: column;
@@ -35,119 +37,159 @@
       background: var(--primary);
       color: white;
       width: 100%;
-      padding: 10px;
+      padding: 12px 0;
+      font-size: 1.8em;
+      font-weight: 700;
       text-align: center;
-      font-size: 1.5em;
+      letter-spacing: 1px;
+      border-bottom: 3px solid var(--accent);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    header img {
+      vertical-align: middle;
+      margin-right: 8px;
     }
 
     #topBar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--secondary);
+      background: var(--accent);
       color: white;
       width: 100%;
       padding: 8px 16px;
-      font-weight: bold;
+      font-weight: 600;
+      border-bottom: 2px solid var(--primary);
     }
 
     #serverId {
-      font-size: 0.9em;
+      opacity: 0.9;
     }
 
     #darkModeBtn {
-      background: transparent;
+      background: rgba(255,255,255,0.15);
       border: none;
+      border-radius: 8px;
+      padding: 6px 12px;
       color: white;
       cursor: pointer;
-      font-weight: bold;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    #darkModeBtn:hover {
+      background: rgba(255,255,255,0.3);
     }
 
     #chatContainer {
-      display: flex;
-      width: 100%;
-      height: 100%;
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 90%;
       max-width: 800px;
-      border: 1px solid var(--border);
-      margin-top: 10px;
+      flex: 1;
+      display: flex;
       flex-direction: column;
+      overflow: hidden;
+      margin: 16px 0;
     }
 
     #notifications {
-      background: var(--secondary);
+      background: var(--accent);
       color: white;
-      padding: 5px;
       text-align: center;
+      padding: 10px;
+      font-weight: 600;
+      font-size: 0.9em;
     }
 
     #chat {
       flex: 1;
       overflow-y: auto;
-      padding: 10px;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      padding: 15px;
     }
 
     #chat div {
-      padding: 5px;
-      margin-bottom: 3px;
-      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     #controls {
       display: flex;
-      padding: 10px;
-      gap: 5px;
+      padding: 12px;
+      gap: 8px;
+      background: var(--card);
+      border-top: 1px solid var(--border);
     }
 
     input[type="text"] {
       flex: 1;
-      padding: 8px;
+      padding: 10px;
+      border-radius: 8px;
       border: 1px solid var(--border);
-      border-radius: 4px;
+      font-size: 1em;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
     }
 
     button {
-      padding: 8px 12px;
       background: var(--primary);
       border: none;
-      border-radius: 4px;
       color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s, transform 0.1s;
     }
 
     button:hover {
-      background: var(--secondary);
+      background: var(--accent);
+      transform: scale(1.03);
     }
 
     #adminControls {
       display: none;
-      margin: 10px 0;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+    }
+
+    #adminControls button {
+      background: var(--accent);
     }
   </style>
 </head>
 <body>
   <header>
-    <img src="favicon.png" width="40" style="vertical-align: middle; margin-right: 8px;">
+    <img src="ChatGPT Image Nov 5, 2025, 07_24_09 PM.png" width="40">
     DevHub Chat
   </header>
 
   <div id="topBar">
     <div id="serverId">Server ID: #001</div>
-    <button id="darkModeBtn">🌙 Dark Mode</button>
+    <button id="darkModeBtn">🌙 Dark</button>
   </div>
 
   <div id="chatContainer">
-    <div id="notifications">Welcome to DevHub!</div>
+    <div id="notifications">Welcome to DevHub! Set your name to start chatting.</div>
     <div id="chat"></div>
 
     <div id="controls">
-      <input type="text" id="usernameInput" placeholder="Enter your username..." />
+      <input type="text" id="usernameInput" placeholder="Enter your username...">
       <button id="setUsernameBtn">Join</button>
     </div>
 
     <div id="controls">
-      <input type="text" id="messageInput" placeholder="Type your message..." />
+      <input type="text" id="messageInput" placeholder="Type a message...">
       <button id="sendBtn">Send</button>
     </div>
 
@@ -159,18 +201,30 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="client.js"></script>
+
   <script>
-    // Dark mode toggle
-    const darkModeBtn = document.getElementById("darkModeBtn");
-    darkModeBtn.addEventListener("click", () => {
-      const current = document.body.getAttribute("data-theme");
-      if (current === "dark") {
-        document.body.removeAttribute("data-theme");
-        darkModeBtn.textContent = "🌙 Dark Mode";
-      } else {
-        document.body.setAttribute("data-theme", "dark");
-        darkModeBtn.textContent = "☀️ Light Mode";
+    // 🌗 Dark mode toggle
+    const darkBtn = document.getElementById("darkModeBtn");
+    darkBtn.addEventListener("click", () => {
+      const dark = document.body.getAttribute("data-theme") === "dark";
+      document.body.setAttribute("data-theme", dark ? "" : "dark");
+      darkBtn.textContent = dark ? "🌙 Dark" : "☀️ Light";
+    });
+
+    // 🎛️ Admin panel toggle
+    let currentUsername = "";
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "0" && currentUsername === "NinjaIsCool") {
+        const panel = document.getElementById("adminControls");
+        panel.style.display = panel.style.display === "flex" ? "none" : "flex";
       }
+    });
+
+    // Store username for admin logic
+    const usernameInput = document.getElementById("usernameInput");
+    const setUsernameBtn = document.getElementById("setUsernameBtn");
+    setUsernameBtn.addEventListener("click", () => {
+      currentUsername = usernameInput.value.trim();
     });
   </script>
 </body>
