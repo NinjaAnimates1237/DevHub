@@ -1,119 +1,103 @@
-body {
-  font-family: 'Nunito', sans-serif;
-  background: #ffffff;
-  color: #004cff;
-  margin: 0;
-  transition: background 0.3s, color 0.3s;
-}
-body.dark {
-  background: #0e0e10;
-  color: #ffffff;
+:root {
+  --blue: #004cff;
+  --white: #ffffff;
+  --bg: #f5f7ff;
+  --text: #111;
 }
 
-.topbar {
+body {
+  font-family: "Nunito", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  transition: 0.4s ease;
+}
+
+body.dark {
+  --bg: #0d1117;
+  --text: #e6edf3;
+}
+
+header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background: #004cff;
-  color: #fff;
-  font-weight: 600;
+  padding: 12px 20px;
+  background: var(--blue);
+  color: var(--white);
+  border-radius: 0 0 15px 15px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
 }
 
-.container {
+.top-right {
   display: flex;
-  height: calc(100vh - 60px);
+  align-items: center;
+  gap: 10px;
 }
 
-.sidebar {
-  width: 220px;
-  background: #eaf0ff;
-  padding: 15px;
-  border-right: 2px solid #004cff;
+.notif-btn {
+  background: none;
+  border: none;
+  position: relative;
+  cursor: pointer;
 }
-body.dark .sidebar {
-  background: #15161a;
-  border-color: #1e1f25;
+
+.notif-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.notif-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 5px;
+  font-size: 12px;
 }
 
 main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-#messages {
-  flex: 1;
-  overflow-y: auto;
   padding: 20px;
 }
 
-.message {
-  background: #eaf0ff;
-  padding: 8px 12px;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  display: inline-block;
-}
-body.dark .message {
-  background: #1e1f25;
-}
-
-#msg-form {
-  display: flex;
-  padding: 10px;
-  background: #f5f7ff;
-  border-top: 2px solid #004cff;
-}
-#msg-form input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-}
-#msg-form button {
-  background: #004cff;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
-  margin-left: 8px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-#msg-form button:hover {
-  background: #0038c2;
-}
-
-/* Notifications Panel */
-#notif-panel {
-  position: fixed;
-  top: 60px;
-  right: 15px;
-  width: 300px;
-  max-height: 400px;
+#messages {
+  height: 300px;
   overflow-y: auto;
-  background: #ffffff;
-  border: 2px solid #004cff;
+  border: 1px solid #ccc;
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   padding: 10px;
-  z-index: 999;
+  background: var(--white);
 }
-body.dark #notif-panel {
-  background: #1e1f25;
-  border-color: #1e1f25;
+
+.message {
+  margin-bottom: 10px;
+  padding: 6px 10px;
+  background: #eaf1ff;
+  border-radius: 10px;
 }
-#notif-panel.hidden {
+
+body.dark .message {
+  background: #1c2128;
+}
+
+.hidden {
   display: none;
 }
-.notif {
-  padding: 8px;
-  margin-bottom: 6px;
+
+button {
+  background: var(--blue);
+  color: white;
+  border: none;
+  padding: 8px 14px;
   border-radius: 10px;
-  background: #eaf0ff;
+  cursor: pointer;
+  font-weight: 600;
 }
-body.dark .notif {
-  background: #2b2c33;
+
+button:hover {
+  opacity: 0.9;
 }
-/*hi everyone*/
+
+ 
