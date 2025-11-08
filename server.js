@@ -41,3 +41,21 @@ io.on("connection", (socket) => {
   });
 
   socket.on("banUser", (username) => {
+    for (let [id, name] of Object.entries(users)) {
+      if (name === username) {
+        io.to(id).emit("banned");
+        io.emit("sendNotification", `${username} was banned by ${socket.username}`);
+        io.sockets.sockets.get(id).disconnect(true);
+        delete users[id];
+      }
+    }
+  });
+
+  socket.on("disconnect", () => {
+    delete users[socket.id];
+    io.emit("userList", Object.values(users));
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
