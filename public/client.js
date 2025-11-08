@@ -1,56 +1,56 @@
 const socket = io();
+
+const usernameInput = document.getElementById("usernameInput");
+const joinBtn = document.getElementById("joinBtn");
+const chatBox = document.getElementById("chatBox");
+const msgInput = document.getElementById("msgInput");
+const sendBtn = document.getElementById("sendBtn");
+const messages = document.getElementById("messages");
+const notifBtn = document.getElementById("notifBtn");
+const notifPanel = document.getElementById("notifPanel");
+const notifList = document.getElementById("notifList");
+const notifCount = document.getElementById("notifCount");
+const themeToggle = document.getElementById("themeToggle");
+const adminPanel = document.getElementById("adminPanel");
+const banInput = document.getElementById("banInput");
+const banBtn = document.getElementById("banBtn");
+
+let username = "";
+let notifCounter = 0;
 let isAdmin = false;
 
-// Set username and server
-document.getElementById("setUsernameBtn").addEventListener("click", () => {
-  const username = document.getElementById("usernameInput").value.trim();
-  if (username) {
-    socket.emit("setUsername", username);
-  }
-});
+joinBtn.onclick = () => {
+  username = usernameInput.value.trim();
+  if (!username) return;
+  socket.emit("setUsername", username);
+  document.getElementById("loginBox").classList.add("hidden");
+  chatBox.classList.remove("hidden");
+};
 
-socket.on("adminStatus", (status) => {
-  isAdmin = status;
-  if (isAdmin) {
-    document.getElementById("adminControls").style.display = "block";
-  }
-});
+sendBtn.onclick = () => {
+  const msg = msgInput.value.trim();
+  if (msg) socket.emit("chatMessage", msg);
+  msgInput.value = "";
+};
 
-socket.on("banned", () => {
-  alert("You were banned from the server.");
-  window.location.reload();
-});
-
-socket.on("serverNotification", (msg) => {
-  const notifArea = document.getElementById("notifications");
+socket.on("chatMessage", (data) => {
   const div = document.createElement("div");
-  div.textContent = msg;
-  notifArea.appendChild(div);
+  div.classList.add("message");
+  div.innerHTML = `<strong>${data.user}</strong>: ${data.text} <span class="time">${data.time}</span>`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
 });
 
-// Send messages
-document.getElementById("sendBtn").addEventListener("click", () => {
-  const msg = document.getElementById("messageInput").value.trim();
-  if (msg) {
-    socket.emit("sendMessage", msg);
-    document.getElementById("messageInput").value = "";
-  }
+socket.on("isAdmin", () => {
+  isAdmin = true;
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "0") adminPanel.classList.toggle("hidden");
+  });
 });
 
-socket.on("newMessage", (data) => {
-  const chat = document.getElementById("chat");
-  const div = document.createElement("div");
-  div.textContent = `${data.username}: ${data.text}`;
-  chat.appendChild(div);
-});
+banBtn.onclick = () => {
+  const userToBan = banInput.value.trim();
+  if (userToBan) socket.emit("banUser", userToBan);
+  banInput.value = "";
+};
 
-// Admin actions
-document.getElementById("banBtn").addEventListener("click", () => {
-  const target = prompt("Enter username to ban:");
-  if (target) socket.emit("banUser", target);
-});
-
-document.getElementById("adminBtn").addEventListener("click", () => {
-  const target = prompt("Enter username to make admin:");
-  if (target) socket.emit("makeAdmin", target);
-});
