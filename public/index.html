@@ -4,256 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DevHub</title>
-  <link rel="icon" href="logo.png">
-  <style>
-    :root {
-      --blue: #004cff;
-      --white: #ffffff;
-      --bg-light: #f4f6fb;
-      --bg-dark: #0d1117;
-      --text-light: #000;
-      --text-dark: #fff;
-    }
-
-    body {
-      font-family: "Inter", sans-serif;
-      background-color: var(--bg-light);
-      color: var(--text-light);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      transition: 0.3s;
-    }
-
-    body.dark {
-      background-color: var(--bg-dark);
-      color: var(--text-dark);
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: var(--blue);
-      color: var(--white);
-      padding: 10px 20px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    header h1 {
-      font-size: 1.5em;
-    }
-
-    .chat-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 10px;
-      overflow-y: auto;
-      background-color: rgba(0, 0, 0, 0.02);
-    }
-
-    .chat-message {
-      margin: 5px 0;
-      padding: 10px;
-      border-radius: 10px;
-      max-width: 70%;
-    }
-
-    .self {
-      background-color: var(--blue);
-      color: var(--white);
-      align-self: flex-end;
-    }
-
-    .other {
-      background-color: #e2e2e2;
-      color: #000;
-      align-self: flex-start;
-    }
-
-    body.dark .other {
-      background-color: #1e1e1e;
-      color: #fff;
-    }
-
-    .input-section {
-      display: flex;
-      padding: 10px;
-      border-top: 1px solid #ccc;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      outline: none;
-    }
-
-    button {
-      margin-left: 10px;
-      padding: 10px 15px;
-      background-color: var(--blue);
-      color: var(--white);
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .settings {
-      display: flex;
-      gap: 10px;
-      padding: 10px;
-    }
-
-    #notifications {
-      background: #fff;
-      color: #000;
-      border-radius: 10px;
-      padding: 10px;
-      position: fixed;
-      right: 10px;
-      top: 60px;
-      width: 250px;
-      max-height: 200px;
-      overflow-y: auto;
-      display: none;
-    }
-
-    body.dark #notifications {
-      background: #1e1e1e;
-      color: #fff;
-    }
-
-    #serverCodeDisplay {
-      font-size: 0.9em;
-      opacity: 0.8;
-    }
-
-    #adminPanel {
-      display: none;
-      background: #1a1a1a;
-      color: white;
-      padding: 15px;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      border-top: 2px solid #004cff;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="icons/bell.png" />
 </head>
 <body>
   <header>
-    <h1>DevHub</h1>
-    <div>
-      <span id="serverCodeDisplay"></span>
-      <button id="notifBtn">🔔</button>
-      <button id="toggleTheme">🌙</button>
+    <h1>💻 DevHub</h1>
+    <div class="top-right">
+      <span id="serverId">Server ID: #001</span>
+      <button id="themeToggle">🌙</button>
+      <button id="notifBtn" class="notif-btn">
+        <img src="icons/bell.png" class="notif-icon" alt="Notifications">
+        <span id="notifCount" class="notif-count">0</span>
+      </button>
     </div>
   </header>
 
-  <div id="notifications"></div>
+  <main>
+    <div id="loginBox">
+      <input id="usernameInput" placeholder="Enter your username..." />
+      <button id="joinBtn">Join</button>
+    </div>
 
-  <div class="settings">
-    <input type="text" id="usernameInput" placeholder="Enter username">
-    <input type="text" id="serverCodeInput" placeholder="Enter server code">
-    <button id="joinBtn">Join</button>
-  </div>
+    <div id="chatBox" class="hidden">
+      <div id="messages"></div>
+      <input id="msgInput" placeholder="Type a message..." />
+      <button id="sendBtn">Send</button>
+    </div>
 
-  <div class="chat-container" id="chat"></div>
+    <div id="adminPanel" class="hidden">
+      <h2>Admin Panel</h2>
+      <input id="banInput" placeholder="Ban a user..." />
+      <button id="banBtn">Ban</button>
+    </div>
 
-  <div class="input-section">
-    <input type="text" id="messageInput" placeholder="Type a message...">
-    <button id="sendBtn">Send</button>
-  </div>
-
-  <div id="adminPanel">
-    <h3>Admin Panel</h3>
-    <input type="text" id="banUserInput" placeholder="Ban username">
-    <button id="banBtn">Ban</button>
-  </div>
+    <div id="notifPanel" class="hidden">
+      <h2>Notifications</h2>
+      <ul id="notifList"></ul>
+    </div>
+  </main>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-
-    let username = "";
-    let serverCode = "";
-    let isAdmin = false;
-
-    const chat = document.getElementById("chat");
-    const messageInput = document.getElementById("messageInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const usernameInput = document.getElementById("usernameInput");
-    const serverCodeInput = document.getElementById("serverCodeInput");
-    const joinBtn = document.getElementById("joinBtn");
-    const toggleTheme = document.getElementById("toggleTheme");
-    const notifBtn = document.getElementById("notifBtn");
-    const notifications = document.getElementById("notifications");
-    const serverCodeDisplay = document.getElementById("serverCodeDisplay");
-    const adminPanel = document.getElementById("adminPanel");
-
-    joinBtn.onclick = () => {
-      username = usernameInput.value.trim();
-      serverCode = serverCodeInput.value.trim();
-      if (!username || !serverCode) return alert("Enter username & server code!");
-
-      serverCodeDisplay.textContent = `Server: ${serverCode}`;
-
-      if (username === "NinjaIsCool") {
-        isAdmin = true;
-        alert("You are now admin!");
-      }
-
-      socket.emit("joinServer", { username, serverCode });
-    };
-
-    sendBtn.onclick = () => {
-      const msg = messageInput.value.trim();
-      if (msg && username && serverCode) {
-        socket.emit("chatMessage", { username, serverCode, message: msg });
-        messageInput.value = "";
-      }
-    };
-
-    socket.on("message", (data) => {
-      const msgDiv = document.createElement("div");
-      msgDiv.className = "chat-message " + (data.username === username ? "self" : "other");
-      msgDiv.textContent = `${data.username}: ${data.message}`;
-      chat.appendChild(msgDiv);
-      chat.scrollTop = chat.scrollHeight;
-    });
-
-    toggleTheme.onclick = () => {
-      document.body.classList.toggle("dark");
-    };
-
-    notifBtn.onclick = () => {
-      notifications.style.display = notifications.style.display === "none" ? "block" : "none";
-    };
-
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "0" && isAdmin) {
-        adminPanel.style.display = adminPanel.style.display === "none" ? "block" : "none";
-      }
-    });
-
-    document.getElementById("banBtn").onclick = () => {
-      const banUser = document.getElementById("banUserInput").value.trim();
-      if (banUser) {
-        socket.emit("banUser", { target: banUser, serverCode });
-        alert(`${banUser} banned!`);
-      }
-    };
-  </script>
+  <script src="client.js"></script>
 </body>
 </html>
